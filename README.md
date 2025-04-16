@@ -55,8 +55,8 @@ Portal: System Info offers a categorized, visually organized dashboard displayin
 To get started, clone the repository and install dependencies.
 
 ```bash
-git clone https://github.com/yourusername/Portal-System-Info.git
-cd Portal-System-Info
+git clone https://github.com/yourusername/Portal.git
+cd Portal
 npm install
 npm start
 ```
@@ -89,7 +89,7 @@ This project is open to contributions. To contribute:
 2. Create a new feature or fix branch
 3. Submit a pull request with a clear description of your changes
 
-Issues and feature requests can be submitted through the [GitHub Issue Tracker](https://github.com/yourusername/Portal-System-Info/issues).
+Issues and feature requests can be submitted through the [GitHub Issue Tracker](https://github.com/TirupMehta/issues).
 
 ---
 
