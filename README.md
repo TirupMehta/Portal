@@ -55,7 +55,7 @@ Portal: System Info offers a categorized, visually organized dashboard displayin
 To get started, clone the repository and install dependencies.
 
 ```bash
-git clone https://github.com/yourusername/Portal.git
+git clone https://github.com/TirupMehta/Portal.git
 cd Portal
 npm install
 npm start
