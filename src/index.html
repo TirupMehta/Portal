@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal - System Info</title>
+  <style>
+    /* Base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* Header styles */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeDown 0.6s forwards;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(to right, #ffffff, #606060);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .header p {
+      color: #606060;
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+
+    /* Loading styles */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 16rem;
+    }
+
+    .spinner {
+      width: 3rem;
+      height: 3rem;
+      border: 2px solid transparent;
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    .loading p {
+      color: #606060;
+    }
+
+    /* Content container */
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      display: none;
+    }
+
+    /* Category styles */
+    .category {
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+
+    .category-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      text-transform: capitalize;
+      border-bottom: 1px solid #121212;
+      padding-bottom: 0.5rem;
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    /* Card grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 1rem;
+    }
+
+    /* Card styles */
+    .card {
+      background-color: #0a0a0a;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      border: 1px solid #121212;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-icon {
+      margin-right: 0.75rem;
+      color: #606060;
+    }
+
+    .card-title {
+      font-weight: 500;
+      color: #909090;
+    }
+
+    .card-value {
+      color: #ffffff;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.875rem;
+      word-break: break-all;
+    }
+
+    /* Speed test button */
+    .speed-test-btn {
+      background-color: #1a1a1a;
+      color: #ffffff;
+      border: 1px solid #333;
+      border-radius: 0.25rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .speed-test-btn:hover {
+      background-color: #333;
+    }
+
+    .speed-test-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .speed-test-progress {
+      height: 4px;
+      width: 100%;
+      background-color: #1a1a1a;
+      margin-top: 0.5rem;
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .speed-test-progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #ffffff;
+      transition: width 0.3s;
+    }
+
+    /* Footer styles */
+    .footer {
+      margin-top: auto;
+      padding-top: 2rem;
+      text-align: center;
+      color: #3a3a3a;
+      font-size: 0.875rem;
+      opacity: 0;
+      animation: fadeIn 0.5s 1s forwards;
+    }
+
+    .footer p + p {
+      margin-top: 0.25rem;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #444;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeRight {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Responsive styles */
+    @media (min-width: 640px) {
+      .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      body {
+        padding: 2rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      body {
+        padding: 2.5rem;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .card-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Portal: System Info</h1>
+    <p>Detailed information about your system, browser, and device</p>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Gathering system information...</p>
+  </div>
+
+  <div class="container" id="container"></div>
+
+  <footer class="footer">
+    <p id="timestamp">Last updated: </p>
+    <p>Data is collected locally and never transmitted</p>
+  </footer>
+
+  <script>
+    // SVG Icons
+    const icons = {
+      cpu: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="2" x2="9" y2="4"></line><line x1="15" y1="2" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="22"></line><line x1="15" y1="20" x2="15" y2="22"></line><line x1="20" y1="9" x2="22" y2="9"></line><line x1="20" y1="14" x2="22" y2="14"></line><line x1="2" y1="9" x2="4" y2="9"></line><line x1="2" y1="14" x2="4" y2="14"></line></svg>',
+      battery: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"></rect><line x1="22" y1="11" x2="22" y2="13"></line></svg>',
+      wifi: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a10 10 0 0 1 14 0"></path><path d="M8.5 16.5a5 5 0 0 1 7 0"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><line x1="12" y1="20" x2="12" y2="20"></line></svg>',
+      monitor: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>',
+      clock: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+      globe: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>',
+      cookie: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path><path d="M8.5 8.5v.01"></path><path d="M16 15.5v.01"></path><path d="M12 12v.01"></path><path d="M11 17v.01"></path><path d="M7 14v.01"></path></svg>',
+      database: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>',
+      download: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+      upload: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>',
+      refresh: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>'
+    };
+
+    // Speed test endpoints
+    const SPEED_TEST_ENDPOINTS = {
+      // Using public CDNs for speed test
+      download: 'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js', // ~88KB file
+      upload: 'https://httpbin.org/post' // Echo server for upload testing
+    };
+
+    // Generate random data for upload test
+    function generateTestData(sizeInKB) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      const iterations = sizeInKB * 1024 / chars.length;
+      
+      for (let i = 0; i < iterations; i++) {
+        result += chars;
+      }
+      
+      return result;
+    }
+
+    // Measure download speed
+    async function testDownloadSpeed() {
+      try {
+        const startTime = performance.now();
+        const response = await fetch(SPEED_TEST_ENDPOINTS.download + '?cacheBust=' + Math.random(), {
+          cache: 'no-store'
+        });
+        const data = await response.text();
+        const endTime = performance.now();
+        const durationInSeconds = (endTime - startTime) / 1000;
+        const fileSizeInBits = data.length * 8;
+        const speedInMbps = (fileSizeInBits / durationInSeconds / 1024 / 1024).toFixed(2);
+        
+        return speedInMbps;
+      } catch (error) {
+        console.error('Download speed test failed:', error);
+        return 'Test failed';
+      }
+    }
+
+    // Measure upload speed
+    async function testUploadSpeed() {
+      try {
+        // Generate ~100KB of test data
+        const testData = generateTestData(100);
+        
+        const startTime = performance.now();
+        const response = await fetch(SPEED_TEST_ENDPOINTS.upload, {
+          method: 'POST',
+          body: testData,
+          cache: 'no-store'
+        });
+        await response.text();
+        const endTime = performance.now();
+        
+        const durationInSeconds = (endTime - startTime) / 1000;
+        const dataSizeInBits = testData.length * 8;
+        const speedInMbps = (dataSizeInBits / durationInSeconds / 1024 / 1024).toFixed(2);
+        
+        return speedInMbps;
+      } catch (error) {
+        console.error('Upload speed test failed:', error);
+        return 'Test failed';
+      }
+    }
+
+    // Run both speed tests
+    async function runSpeedTest(downloadCard, uploadCard) {
+      const downloadBtn = downloadCard.querySelector('.speed-test-btn');
+      const uploadBtn = uploadCard.querySelector('.speed-test-btn');
+      const downloadProgress = downloadCard.querySelector('.speed-test-progress');
+      const uploadProgress = uploadCard.querySelector('.speed-test-progress');
+      const downloadProgressBar = downloadProgress.querySelector('.speed-test-progress-bar');
+      const uploadProgressBar = uploadProgress.querySelector('.speed-test-progress-bar');
+      
+      // Disable buttons and show progress
+      downloadBtn.disabled = true;
+      uploadBtn.disabled = true;
+      downloadBtn.textContent = 'Testing...';
+      uploadBtn.textContent = 'Testing...';
+      downloadProgress.style.display = 'block';
+      uploadProgress.style.display = 'block';
+      
+      // Animate progress bars
+      downloadProgressBar.style.width = '0%';
+      uploadProgressBar.style.width = '0%';
+      
+      setTimeout(() => {
+        downloadProgressBar.style.width = '50%';
+      }, 100);
+      
+      // Test download speed
+      const downloadSpeed = await testDownloadSpeed();
+      downloadProgressBar.style.width = '100%';
+      downloadCard.querySelector('.card-value').textContent = downloadSpeed + ' Mbps';
+      downloadBtn.textContent = 'Test Again';
+      downloadBtn.disabled = false;
+      
+      // Start upload test
+      setTimeout(() => {
+        uploadProgressBar.style.width = '50%';
+      }, 100);
+      
+      // Test upload speed
+      const uploadSpeed = await testUploadSpeed();
+      uploadProgressBar.style.width = '100%';
+      uploadCard.querySelector('.card-value').textContent = uploadSpeed + ' Mbps';
+      uploadBtn.textContent = 'Test Again';
+      uploadBtn.disabled = false;
+      
+      // Hide progress bars after a delay
+      setTimeout(() => {
+        downloadProgress.style.display = 'none';
+        uploadProgress.style.display = 'none';
+      }, 1000);
+    }
+
+    async function getSystemInfo() {
+      try {
+        const battery = await navigator.getBattery();
+        const connection = navigator.connection || {};
+        const gl = document.createElement('canvas').getContext('webgl');
+
+        const data = {
+          Platform: {
+            icon: icons.cpu,
+            value: navigator.platform,
+            category: "hardware",
+          },
+          "User Agent": {
+            icon: icons.globe,
+            value: navigator.userAgent,
+            category: "browser",
+          },
+          Language: {
+            icon: icons.globe,
+            value: navigator.language,
+            category: "browser",
+          },
+          "CPU Cores": {
+            icon: icons.cpu,
+            value: navigator.hardwareConcurrency,
+            category: "hardware",
+          },
+          "RAM (Estimate)": {
+            icon: icons.database,
+            value: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "N/A",
+            category: "hardware",
+          },
+          Screen: {
+            icon: icons.monitor,
+            value: `${screen.width}x${screen.height}`,
+            category: "display",
+          },
+          "Pixel Ratio": {
+            icon: icons.monitor,
+            value: window.devicePixelRatio,
+            category: "display",
+          },
+          Timezone: {
+            icon: icons.clock,
+            value: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            category: "time",
+          },
+          Online: {
+            icon: icons.wifi,
+            value: navigator.onLine ? "Yes" : "No",
+            category: "network",
+          },
+          "Cookies Enabled": {
+            icon: icons.cookie,
+            value: navigator.cookieEnabled ? "Yes" : "No",
+            category: "browser",
+          },
+          "Battery Level": {
+            icon: icons.battery,
+            value: `${Math.round(battery.level * 100)}%`,
+            category: "hardware",
+          },
+          Charging: {
+            icon: icons.battery,
+            value: battery.charging ? "Yes" : "No",
+            category: "hardware",
+          },
+          "Network Type": {
+            icon: icons.wifi,
+            value: connection.effectiveType || "N/A",
+            category: "network",
+          },
+          "Connection RTT": {
+            icon: icons.wifi,
+            value: connection.rtt ? `${connection.rtt} ms` : "N/A",
+            category: "network",
+          },
+          "Download Speed": {
+            icon: icons.download,
+            value: "Click to test",
+            category: "network",
+            isSpeedTest: true,
+            type: 'download'
+          },
+          "Upload Speed": {
+            icon: icons.upload,
+            value: "Click to test",
+            category: "network",
+            isSpeedTest: true,
+            type: 'upload'
+          },
+          "GPU Vendor": {
+            icon: icons.cpu,
+            value: gl ? gl.getParameter(gl.VENDOR) : "N/A",
+            category: "hardware",
+          },
+          "GPU Renderer": {
+            icon: icons.cpu,
+            value: gl ? gl.getParameter(gl.RENDERER) : "N/A",
+            category: "hardware",
+          },
+          "Time (Local)": {
+            icon: icons.clock,
+            value: new Date().toLocaleTimeString(),
+            category: "time",
+          },
+          "Time (UTC)": {
+            icon: icons.clock,
+            value: new Date().toUTCString(),
+            category: "time",
+          },
+        };
+
+        return data;
+      } catch (error) {
+        console.error("Error fetching system info:", error);
+        return {};
+      }
+    }
+
+    function renderSystemInfo(systemInfo) {
+      const container = document.getElementById('container');
+      const loading = document.getElementById('loading');
+      const timestamp = document.getElementById('timestamp');
+      
+      // Update timestamp
+      timestamp.textContent = `Last updated: ${new Date().toLocaleString()}`;
+      
+      // Get unique categories
+      const categories = [...new Set(Object.values(systemInfo).map(item => item.category))];
+      
+      // Store speed test cards for later reference
+      let downloadCard, uploadCard;
+      
+      // Create HTML for each category
+      categories.forEach((category, categoryIndex) => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category';
+        categoryDiv.style.animationDelay = `${categoryIndex * 0.1}s`;
+        
+        const categoryTitle = document.createElement('h2');
+        categoryTitle.className = 'category-title';
+        categoryTitle.textContent = category;
+        categoryTitle.style.animation = `fadeRight 0.5s forwards`;
+        categoryTitle.style.animationDelay = `${categoryIndex * 0.1}s`;
+        
+        const cardGrid = document.createElement('div');
+        cardGrid.className = 'card-grid';
+        
+        // Filter items for this category and create cards
+        const categoryItems = Object.entries(systemInfo)
+          .filter(([_, info]) => info.category === category);
+        
+        categoryItems.forEach(([key, info], index) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.style.animation = `fadeUp 0.5s forwards`;
+          card.style.animationDelay = `${0.2 + index * 0.05 + categoryIndex * 0.1}s`;
+          
+          const cardHeader = document.createElement('div');
+          cardHeader.className = 'card-header';
+          
+          const cardIcon = document.createElement('div');
+          cardIcon.className = 'card-icon';
+          cardIcon.innerHTML = info.icon;
+          
+          const cardTitle = document.createElement('h3');
+          cardTitle.className = 'card-title';
+          cardTitle.textContent = key;
+          
+          const cardValue = document.createElement('p');
+          cardValue.className = 'card-value';
+          cardValue.textContent = info.value;
+          
+          cardHeader.appendChild(cardIcon);
+          cardHeader.appendChild(cardTitle);
+          card.appendChild(cardHeader);
+          card.appendChild(cardValue);
+          
+          // Add speed test button if needed
+          if (info.isSpeedTest) {
+            const speedTestBtn = document.createElement('button');
+            speedTestBtn.className = 'speed-test-btn';
+            speedTestBtn.textContent = 'Run Test';
+            
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'speed-test-progress';
+            
+            const progressBar = document.createElement('div');
+            progressBar.className = 'speed-test-progress-bar';
+            
+            progressContainer.appendChild(progressBar);
+            card.appendChild(speedTestBtn);
+            card.appendChild(progressContainer);
+            
+            // Store reference to speed test cards
+            if (info.type === 'download') {
+              downloadCard = card;
+            } else if (info.type === 'upload') {
+              uploadCard = card;
+            }
+          }
+          
+          cardGrid.appendChild(card);
+        });
+        
+        categoryDiv.appendChild(categoryTitle);
+        categoryDiv.appendChild(cardGrid);
+        container.appendChild(categoryDiv);
+      });
+      
+      // Add event listeners for speed test buttons
+      if (downloadCard && uploadCard) {
+        const downloadBtn = downloadCard.querySelector('.speed-test-btn');
+        const uploadBtn = uploadCard.querySelector('.speed-test-btn');
+        
+        downloadBtn.addEventListener('click', () => {
+          runSpeedTest(downloadCard, uploadCard);
+        });
+        
+        uploadBtn.addEventListener('click', () => {
+          runSpeedTest(downloadCard, uploadCard);
+        });
+      }
+      
+      // Hide loading, show container
+      loading.style.display = 'none';
+      container.style.display = 'block';
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', async () => {
+      const systemInfo = await getSystemInfo();
+      setTimeout(() => {
+        renderSystemInfo(systemInfo);
+      }, 800); // Add a small delay to make loading animation visible
+    });
+  </script>
+</body>
+</html>
