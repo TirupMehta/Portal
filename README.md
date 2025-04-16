@@ -89,7 +89,7 @@ This project is open to contributions. To contribute:
 2. Create a new feature or fix branch
 3. Submit a pull request with a clear description of your changes
 
-Issues and feature requests can be submitted through the [GitHub Issue Tracker](https://github.com/TirupMehta/issues).
+Issues and feature requests can be submitted through the [GitHub Issue Tracker](https://github.com/TirupMehta/Portal/issues).
 
 ---
 
